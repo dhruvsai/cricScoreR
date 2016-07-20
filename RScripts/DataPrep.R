@@ -1,41 +1,12 @@
-#To scrap dat from cricsheet website.
 
-#Below are sample urls that are used.
-# url <- "http://stats.espncricinfo.com/ci/engine/stats/index.html?class=20;template=results;type=allround;view=ground"
-# url<-"http://stats.espncricinfo.com/ci/engine/stats/index.html?class=1;home_or_away=2;opposition=25;team=5;template=results;type=fielding"
-# url <- "http://stats.espncricinfo.com/ci/engine/stats/index.html?class=1;template=results;type=batting"
 
-getData <- function(url){
-  library(XML)
-  library(rvest)
-  resultdf <- NULL
-  while(1){
-    #browser()
-    parsedPage <- read_html(url)
-    resultdf <- rbind(resultdf,parsedPage %>% html_nodes("table") %>% .[[3]] %>% html_table())
-    pageLinkNode <- html_nodes(parsedPage,xpath = "//*[@id='ciHomeContentlhs']/div[3]/table[2]/tr[1]/td[5]/a[1][@class='PaginationLink']")
-    url <- html_attr(pageLinkNode,"href")
-    if(length(url)<1) break
-    else url <- paste0("http://stats.espncricinfo.com",url)
-  }
-  return(resultdf)
-}
+# Set this to be the folder where raw data is stored.Get raw data from http://cricsheet.org/
 
-#To extract data
-
-url1 ="http://stats.espncricinfo.com/ci/engine/stats/index.html?class=3;template=results;type=batting"
-#getData function taken from cricdataR script.
-ans1 = getData(url1)
-write.csv(ans1,"C:/Users/admin/Downloads/Use_Case_Dhruv/MetaDataBatsmen.csv",append = TRUE,row.names = FALSE)
-#Data for International T20 Bowlers.
-url2 = "http://stats.espncricinfo.com/ci/engine/stats/index.html?class=3;template=results;type=bowling"
-ans2 = getData(url2)
-write.csv(ans2,"C:/Users/admin/Downloads/Use_Case_Dhruv/MetaDataBowlers.csv",append = FALSE,row.names = FALSE)
+setwd("C:/Users/admin/Downloads/Use_Case_Dhruv/t20_csv")  
 
 #For refining data in order to remove initial details of a match in all csv files.
-
-setwd("C:/Users/admin/Downloads/Use_Case_Dhruv/t20_csv")
 files <- list.files(pattern=".csv$")
+
 t<-lapply(files, function(x){
   filex <- readLines(x)
   filex <- as.character(sapply(filex,function(y)if(!(grepl("info",y)||grepl("version",y)))return(y)))
